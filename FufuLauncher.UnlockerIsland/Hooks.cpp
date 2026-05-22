@@ -312,6 +312,7 @@ namespace Offsets {
     std::string ClockPageCloseOffset;
     std::string ResinListOffset;
     std::string TouchInputOffset;
+    std::string EventCameraOffset;
     // std::string KeyboardMouseInputOffset;
 
     std::string ParseOffsetFromJson(const std::string& jsonStr, const std::string& region, const std::string& key, const std::string& fallback) {
@@ -374,6 +375,7 @@ namespace Offsets {
             ResinListOffset = XorString::decrypt(EncryptedPatterns::OS::ResinListOffset);
             TouchInputOffset = XorString::decrypt(EncryptedPatterns::OS::TouchInputOffset);
             // KeyboardMouseInputOffset = XorString::decrypt(EncryptedPatterns::OS::KeyboardMouseInputOffset);
+            EventCameraOffset = XorString::decrypt(EncryptedPatterns::OS::EventCameraOffset);
             std::cout << "[INFO] Pre-initialized Global (OS) Offsets from hardcode" << std::endl;
         } else {
             GetActiveOffset = XorString::decrypt(EncryptedPatterns::CN::GetActiveOffset);
@@ -391,6 +393,7 @@ namespace Offsets {
             ResinListOffset = XorString::decrypt(EncryptedPatterns::CN::ResinListOffset);
             TouchInputOffset = XorString::decrypt(EncryptedPatterns::CN::TouchInputOffset);
             // KeyboardMouseInputOffset = XorString::decrypt(EncryptedPatterns::CN::KeyboardMouseInputOffset);
+            EventCameraOffset = XorString::decrypt(EncryptedPatterns::CN::EventCameraOffset);
             std::cout << "[INFO] Pre-initialized China (CN) Offsets from hardcode" << std::endl;
         }
         
@@ -421,6 +424,7 @@ namespace Offsets {
                 ResinListOffset = ParseOffsetFromJson(jsonContent, region, "ResinListOffset", ResinListOffset);
                 TouchInputOffset = ParseOffsetFromJson(jsonContent, region, "TouchInput", TouchInputOffset);
                 // KeyboardMouseInputOffset = ParseOffsetFromJson(jsonContent, region, "KeyboardMouseInput", KeyboardMouseInputOffset);
+                EventCameraOffset = ParseOffsetFromJson(jsonContent, region, "EventCamera", EventCameraOffset);
 
                 std::cout << "[INFO] Offsets initialized. Source logic overridden by local offset.json (Region: " << region << ")" << std::endl;
             } else {
@@ -2236,7 +2240,6 @@ bool Hooks::Init() {
     HOOK_REL("SetActive", EncryptedPatterns::SetActive, hk_SetActive, o_SetActive);
 	SCAN_DIR("GetName", EncryptedPatterns::GetName, p_GetName);
     HOOK_DIR("DamageText", EncryptedPatterns::DamageText, hk_ShowDamage, o_ShowDamage);
-    HOOK_DIR("EventCamera", EncryptedPatterns::EventCamera, hk_EventCamera, o_EventCamera);
     SCAN_DIR("FindString", EncryptedPatterns::FindString, p_FindString);
     SCAN_DIR("CraftPartner", EncryptedPatterns::CraftPartner, p_CraftPartner);
     HOOK_DIR("CraftEntry", EncryptedPatterns::CraftEntry, hk_CraftEntry, o_CraftEntry);
@@ -2253,6 +2256,30 @@ bool Hooks::Init() {
     SCAN_DIR("StringNew", EncryptedPatterns::StringNew, p_StringNew);
     SCAN_DIR("ShowDialog", EncryptedPatterns::ShowDialog, p_ShowDialog);
     HOOK_DIR("SetUID", EncryptedPatterns::SetUID, hk_SetUID, o_SetUid);
+
+    void* eventCameraAddr = nullptr;
+    uintptr_t offsetEventCam = StringToAddr(Offsets::EventCameraOffset);
+    if (offsetEventCam > 0) {
+        eventCameraAddr = (void*)((uintptr_t)GetModuleHandle(NULL) + offsetEventCam);
+        std::cout << "[SCAN] EventCamera resolved via explicit offset: 0x" << std::hex << offsetEventCam << std::dec << '\n';
+    } else {
+        void* scanRes = Scanner::ScanMainMod(XorString::decrypt(EncryptedPatterns::EventCamera));
+        if (scanRes) {
+            eventCameraAddr = scanRes;
+            std::cout << "[SCAN] EventCamera resolved via signature fallback.\n";
+        }
+    }
+
+    if (eventCameraAddr) {
+        LogOffset("EventCamera", eventCameraAddr, eventCameraAddr);
+        if (MH_CreateHook(eventCameraAddr, (void*)hk_EventCamera, (void**)&o_EventCamera) == MH_OK) {
+            std::cout << "   -> EventCamera Hook Ready.\n";
+        } else {
+            std::cout << "   -> [ERR] EventCamera Hook Failed.\n";
+        }
+    } else {
+        std::cout << "   -> [ERR] EventCamera not found.\n";
+    }
 
     std::cout << "[SCAN] Scanning InnerDispatcher (Multi-pattern matching)..." << std::endl;
     

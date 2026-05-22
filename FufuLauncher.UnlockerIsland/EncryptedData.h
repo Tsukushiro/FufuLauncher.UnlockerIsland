@@ -75,68 +75,72 @@ namespace EncryptedPatterns {
     
     namespace CN {
         // UnityEngine.GameObject.get_active
-        inline constexpr auto GetActiveOffset = XorString::encrypt("16C88E30");
+        inline constexpr auto GetActiveOffset = XorString::encrypt("173a9680");
         // MoleMole.ActorManager.ctor
-        inline constexpr auto ActorManagerCtorOffset = XorString::encrypt("DEFCD30");
+        inline constexpr auto ActorManagerCtorOffset = XorString::encrypt("e3e40d0");
         // MoleMole.ActorManager.GetGlobalActor
-        inline constexpr auto GetGlobalActorOffset = XorString::encrypt("DF01950");
+        inline constexpr auto GetGlobalActorOffset = XorString::encrypt("e3e69f0");
         // MoleMole.BaseActor.AvatarPaimonAppear
-        inline constexpr auto AvatarPaimonAppearOffset = XorString::encrypt("11469590");
+        inline constexpr auto AvatarPaimonAppearOffset = XorString::encrypt("11a655e0");
         // UnityEngine.Camera.get_main
-        inline constexpr auto GetMainCameraOffset = XorString::encrypt("16C99800");
+        inline constexpr auto GetMainCameraOffset = XorString::encrypt("173ba100");
         // UnityEngine.Component.get_transform
-        inline constexpr auto GetTransformOffset = XorString::encrypt("16CAA180");
+        inline constexpr auto GetTransformOffset = XorString::encrypt("173caae0");
         // UnityEngine.Transform.INTERNAL_set_position
-        inline constexpr auto SetPosOffset = XorString::encrypt("16CA3830");
+        inline constexpr auto SetPosOffset = XorString::encrypt("173c4140");
         // UnityEngine.Camera.get_cameraToWorldMatrix
-        inline constexpr auto CameraGetC2WOffset = XorString::encrypt("16C98CF0");
+        inline constexpr auto CameraGetC2WOffset = XorString::encrypt("173b95f0");
         // UnityEngine.Component.GetComponent(System.String type)
-        inline constexpr auto GetComponent = XorString::encrypt("16C88AB0");
+        inline constexpr auto GetComponent = XorString::encrypt("173cab60");
         // UnityEngine.UI.Text.get_text
-        inline constexpr auto GetText = XorString::encrypt("16D88760");
+        inline constexpr auto GetText = XorString::encrypt("174a92e0");
 
-        inline constexpr auto ClockPageOkOffset = XorString::encrypt("118DD5E0");
+        inline constexpr auto ClockPageOkOffset = XorString::encrypt("79B4E00");
 
-        inline constexpr auto ClockPageCloseOffset = XorString::encrypt("6E76350");
+        inline constexpr auto ClockPageCloseOffset = XorString::encrypt("11ce7af0");
 
-        inline constexpr auto ResinListOffset = XorString::encrypt("230");
+        inline constexpr auto ResinListOffset = XorString::encrypt("220");
 
-        inline constexpr auto TouchInputOffset = XorString::encrypt("DD948B0");
+        inline constexpr auto TouchInputOffset = XorString::encrypt("d7accd0");
+
+        inline constexpr auto EventCameraOffset = XorString::encrypt("E5BC000");
         
-        // inline constexpr auto KeyboardMouseInputOffset = XorString::encrypt("DD8D7F0"); 
+        // inline constexpr auto KeyboardMouseInputOffset = XorString::encrypt("0"); 
     }
     
     namespace OS {
         // UnityEngine.GameObject.get_active
-        inline constexpr auto GetActiveOffset = XorString::encrypt("16C282E0");
+        inline constexpr auto GetActiveOffset = XorString::encrypt("0");
         // MoleMole.ActorManager.ctor
-        inline constexpr auto ActorManagerCtorOffset = XorString::encrypt("DEF97E0");
+        inline constexpr auto ActorManagerCtorOffset = XorString::encrypt("0");
         // MoleMole.ActorManager.GetGlobalActor
-        inline constexpr auto GetGlobalActorOffset = XorString::encrypt("DEF2E20");
+        inline constexpr auto GetGlobalActorOffset = XorString::encrypt("0");
         // MoleMole.BaseActor.AvatarPaimonAppear
-        inline constexpr auto AvatarPaimonAppearOffset = XorString::encrypt("1146C280");
+        inline constexpr auto AvatarPaimonAppearOffset = XorString::encrypt("0");
         // UnityEngine.Camera.get_main
-        inline constexpr auto GetMainCameraOffset = XorString::encrypt("16C38CB0");
+        inline constexpr auto GetMainCameraOffset = XorString::encrypt("0");
         // UnityEngine.Component.get_transform
-        inline constexpr auto GetTransformOffset = XorString::encrypt("16C495D0");
+        inline constexpr auto GetTransformOffset = XorString::encrypt("0");
         // UnityEngine.Transform.INTERNAL_set_position
-        inline constexpr auto SetPosOffset = XorString::encrypt("16C42CA0");
+        inline constexpr auto SetPosOffset = XorString::encrypt("0");
         // UnityEngine.Camera.get_cameraToWorldMatrix
-        inline constexpr auto CameraGetC2WOffset = XorString::encrypt("16C381A0");
+        inline constexpr auto CameraGetC2WOffset = XorString::encrypt("0");
         // UnityEngine.Component.GetComponent(System.String type)
-        inline constexpr auto GetComponent = XorString::encrypt("16C27F60");
+        inline constexpr auto GetComponent = XorString::encrypt("0");
         // UnityEngine.UI.Text.get_text
-        inline constexpr auto GetText = XorString::encrypt("16D27A80");
+        inline constexpr auto GetText = XorString::encrypt("0");
 
-        inline constexpr auto ClockPageOkOffset = XorString::encrypt("118D08E0");
+        inline constexpr auto ClockPageOkOffset = XorString::encrypt("0");
 
-        inline constexpr auto ClockPageCloseOffset = XorString::encrypt("6E74C70");
+        inline constexpr auto ClockPageCloseOffset = XorString::encrypt("0");
 
         inline constexpr auto ResinListOffset = XorString::encrypt("220");
 
-        inline constexpr auto TouchInputOffset = XorString::encrypt("DD9C9B0");
+        inline constexpr auto TouchInputOffset = XorString::encrypt("0");
+
+        inline constexpr auto EventCameraOffset = XorString::encrypt("0");
         
-        // inline constexpr auto KeyboardMouseInputOffset = XorString::encrypt("DDA7870");
+        // inline constexpr auto KeyboardMouseInputOffset = XorString::encrypt("0");
     }
 }
 
@@ -155,6 +159,7 @@ namespace Offsets {
     extern std::string ClockPageCloseOffset;
     extern std::string ResinListOffset;
     extern std::string TouchInputOffset;
+    extern std::string EventCameraOffset;
     // extern std::string KeyboardMouseInputOffset;
 
     void InitOffsets(bool isOS);
