@@ -1243,7 +1243,9 @@ void __fastcall hk_SetPos(void* pTransform, Vector3* pPos) {
     auto orig = (tSetPos)o_SetPos.load();
     
     if (!pTransform || !pPos || IsBadReadPtr(pTransform, sizeof(void*)) || IsBadReadPtr(pPos, sizeof(Vector3))) {
-        if (orig) orig(pTransform, pPos);
+        if (orig && !IsBadReadPtr((void*)orig, 1)) {
+            __try { orig(pTransform, pPos); } __except(EXCEPTION_EXECUTE_HANDLER) {}
+        }
         return;
     }
 
@@ -1253,10 +1255,16 @@ void __fastcall hk_SetPos(void* pTransform, Vector3* pPos) {
     }
     __except (EXCEPTION_EXECUTE_HANDLER) {
         handled = false;
+        FreeCamState::isActive = false;
     }
     
-    if (!handled && orig) {
-        orig(pTransform, pPos);
+    if (!handled && orig && !IsBadReadPtr((void*)orig, 1)) {
+        __try {
+            orig(pTransform, pPos);
+        }
+        __except (EXCEPTION_EXECUTE_HANDLER) {
+            FreeCamState::isActive = false;
+        }
     }
 }
 
@@ -1867,6 +1875,14 @@ bool CheckCanUseShortcut() {
     return true;
 }
 
+void UpdateFreeCamPhysics_Safe() {
+    __try {
+        UpdateFreeCamPhysics();
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        FreeCamState::isActive = false;
+    }
+}
+
 int32_t WINAPI hk_ChangeFov(void* __this, float value) {
     if (!g_GameUpdateInit.load()) g_GameUpdateInit.store(true);
     auto& cfg = Config::Get();
@@ -1874,10 +1890,11 @@ int32_t WINAPI hk_ChangeFov(void* __this, float value) {
     static int frameCounter = 0;
     frameCounter++;
     
-    UpdateFreeCamPhysics();
+    UpdateFreeCamPhysics_Safe();
     
     if (frameCounter >= 100) {
         frameCounter = 0;
+        InitializeWndProcHooks();
         UpdateRealUID();
         UpdateHideUID();
         UpdateHideMainUI();
@@ -2369,8 +2386,6 @@ bool Hooks::Init() {
         std::cout << "[SCAN] MH_EnableHook Failed!" << '\n';
         return false;
     }
-    
-    InitializeWndProcHooks();
     
     return true;
 }

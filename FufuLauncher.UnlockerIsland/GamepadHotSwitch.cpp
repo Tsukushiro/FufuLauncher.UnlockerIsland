@@ -63,8 +63,13 @@ void HandleSwitchToGamepad()
         SwitchInputDeviceToJoypadFn switchInput = (SwitchInputDeviceToJoypadFn)pSwitchInputDeviceToJoypad;
 
         SafeInvoke([&]() {
+            std::cout << "[GamepadHotSwitch] Executing switch to Gamepad..." << std::endl;
             switchInput(nullptr);
         });
+    }
+    else
+    {
+        std::cout << "[GamepadHotSwitch] Cannot switch to Gamepad: function pointer is null" << std::endl;
     }
 }
 
@@ -76,8 +81,13 @@ void HandleSwitchToKeyboardMouse()
         SwitchInputDeviceToKeyboardMouseFn switchInput = (SwitchInputDeviceToKeyboardMouseFn)pSwitchInputDeviceToKeyboard;
         
         SafeInvoke([&]() {
+            std::cout << "[GamepadHotSwitch] Executing switch to Keyboard/Mouse..." << std::endl;
             switchInput(nullptr);
         });
+    }
+    else
+    {
+        std::cout << "[GamepadHotSwitch] Cannot switch to Keyboard/Mouse: function pointer is null" << std::endl;
     }
 }
 
@@ -114,14 +124,18 @@ HWND FindUnityMainWindow()
 bool InstallWindowSubclass()
 {
     if (!g_hUnityWindow || g_subclassInstalled)
+    {
+        std::cout << "[GamepadHotSwitch] InstallWindowSubclass failed: g_hUnityWindow=" << g_hUnityWindow << " installed=" << g_subclassInstalled << std::endl;
         return false;
+    }
     
     if (SetWindowSubclass(g_hUnityWindow, WindowSubclassProc, g_subclassId, 0))
     {
         g_subclassInstalled = true;
-        std::cout << "[GamepadHotSwitch] Window subclass installed successfully" << std::endl;
+        std::cout << "[GamepadHotSwitch] Window subclass (WndProc Hook) installed successfully" << std::endl;
         return true;
     }
+    std::cout << "[GamepadHotSwitch] SetWindowSubclass API call failed" << std::endl;
     return false;
 }
 
@@ -139,14 +153,12 @@ void RemoveWindowSubclass()
 
 void InitializeWndProcHooks()
 {
+    if (g_subclassInstalled) return;
+
     g_hUnityWindow = FindUnityMainWindow();
     if (g_hUnityWindow)
     {
         InstallWindowSubclass();
-    }
-    else
-    {
-        std::cout << "[GamepadHotSwitch] Unity main window not found during initialization" << std::endl;
     }
 }
 
@@ -392,9 +404,14 @@ void GamepadHotSwitch::SendSwitchMessage(bool toGamepad)
 
     if (g_hUnityWindow)
     {
+        std::cout << "[GamepadHotSwitch] Sending switch message: " << (toGamepad ? "Gamepad" : "Keyboard/Mouse") << std::endl;
         PostMessageW(g_hUnityWindow,
             toGamepad ? WM_GAMEPAD_ACTIVATED : WM_MOUSE_ACTIVATED,
             (WPARAM)0, (LPARAM)0);
+    }
+    else
+    {
+        std::cout << "[GamepadHotSwitch] Failed to send switch message: g_hUnityWindow is null" << std::endl;
     }
 }
 
