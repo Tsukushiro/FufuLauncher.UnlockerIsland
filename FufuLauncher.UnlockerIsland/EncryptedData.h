@@ -104,6 +104,17 @@ namespace EncryptedPatterns {
         inline constexpr auto TouchInputOffset = XorString::encrypt("d7accd0");
 
         inline constexpr auto EventCameraOffset = XorString::encrypt("0");
+        // UnityEngine.UI.Text.set_text
+        inline constexpr auto SetText = XorString::encrypt("174a92f0");
+
+        inline constexpr auto SetColor = XorString::encrypt("174a5020");
+
+        inline constexpr auto DamageColorA = XorString::encrypt("11b0ace0");
+        inline constexpr auto DamageColorB = XorString::encrypt("11b08a60");
+        inline constexpr auto DamageColor1 = XorString::encrypt("11b08920");
+        inline constexpr auto DamageColor2 = XorString::encrypt("11b08620");
+        inline constexpr auto DamageColor3 = XorString::encrypt("11b088b0");
+        inline constexpr auto DamageColor4 = XorString::encrypt("11b085b0");
         
         // inline constexpr auto KeyboardMouseInputOffset = XorString::encrypt("0"); 
     }
@@ -139,6 +150,17 @@ namespace EncryptedPatterns {
         inline constexpr auto TouchInputOffset = XorString::encrypt("d7a7490");
 
         inline constexpr auto EventCameraOffset = XorString::encrypt("0");
+        // UnityEngine.UI.Text.set_text
+        inline constexpr auto SetText = XorString::encrypt("174a1b80");
+
+        inline constexpr auto SetColor = XorString::encrypt("1749d8a0");
+
+        inline constexpr auto DamageColorA = XorString::encrypt("11b10950");
+        inline constexpr auto DamageColorB = XorString::encrypt("11b11c80");
+        inline constexpr auto DamageColor1 = XorString::encrypt("11b10810");
+        inline constexpr auto DamageColor2 = XorString::encrypt("11b0fa40");
+        inline constexpr auto DamageColor3 = XorString::encrypt("11b107a0");
+        inline constexpr auto DamageColor4 = XorString::encrypt("11b0f9d0");
         
         // inline constexpr auto KeyboardMouseInputOffset = XorString::encrypt("0");
     }
@@ -160,6 +182,14 @@ namespace Offsets {
     extern std::string ResinListOffset;
     extern std::string TouchInputOffset;
     extern std::string EventCameraOffset;
+    extern std::string SetTextOffset;
+    extern std::string SetColorOffset;
+    extern std::string DamageColorAOffset;
+    extern std::string DamageColorBOffset;
+    extern std::string DamageColor1Offset;
+    extern std::string DamageColor2Offset;
+    extern std::string DamageColor3Offset;
+    extern std::string DamageColor4Offset;
     // extern std::string KeyboardMouseInputOffset;
 
     void InitOffsets(bool isOS);

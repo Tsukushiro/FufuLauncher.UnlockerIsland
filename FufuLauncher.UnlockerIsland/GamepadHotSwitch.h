@@ -2,6 +2,7 @@
 
 #include <windows.h>
 #include <Xinput.h>
+#include <mmsystem.h>
 #include <atomic>
 #include <thread>
 
@@ -31,6 +32,7 @@ private:
 
     bool InitializeXInput();
     bool IsXInputControllerActive() const;
+    bool IsDirectInputControllerActive();
 
     bool IsKeyboardActive();
     bool IsMouseActive();
@@ -57,6 +59,7 @@ private:
     LONGLONG m_lastMousePos{0};
     ULONGLONG m_lastGamepadActivityTime{0};
     ULONGLONG m_lastKeyboardMouseActivityTime{0};
+    JOYINFOEX m_lastJoyState[4]{};
 
     static constexpr DWORD SWITCH_DELAY_MS = 500;
 };

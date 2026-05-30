@@ -28,6 +28,8 @@
 #include <regex>
 #include <filesystem>
 #include "il2cpp/Il2CppList.h"
+#include <winhttp.h>
+#pragma comment(lib, "winhttp.lib")
 extern std::atomic<bool> g_ShouldShowDialog;
 extern std::string g_DialogText;
 extern std::mutex g_DialogMutex;
@@ -313,6 +315,15 @@ namespace Offsets {
     std::string ResinListOffset;
     std::string TouchInputOffset;
     std::string EventCameraOffset;
+    std::string SetTextOffset;
+    std::string SetColorOffset;
+    std::string SetFontSizeOffset;
+    std::string DamageColorAOffset;
+    std::string DamageColorBOffset;
+    std::string DamageColor1Offset;
+    std::string DamageColor2Offset;
+    std::string DamageColor3Offset;
+    std::string DamageColor4Offset;
     // std::string KeyboardMouseInputOffset;
 
     std::string ParseOffsetFromJson(const std::string& jsonStr, const std::string& region, const std::string& key, const std::string& fallback) {
@@ -376,6 +387,14 @@ namespace Offsets {
             TouchInputOffset = XorString::decrypt(EncryptedPatterns::OS::TouchInputOffset);
             // KeyboardMouseInputOffset = XorString::decrypt(EncryptedPatterns::OS::KeyboardMouseInputOffset);
             EventCameraOffset = XorString::decrypt(EncryptedPatterns::OS::EventCameraOffset);
+            SetTextOffset = XorString::decrypt(EncryptedPatterns::OS::SetText);
+            SetColorOffset = XorString::decrypt(EncryptedPatterns::OS::SetColor);
+            DamageColorAOffset = XorString::decrypt(EncryptedPatterns::OS::DamageColorA);
+            DamageColorBOffset = XorString::decrypt(EncryptedPatterns::OS::DamageColorB);
+            DamageColor1Offset = XorString::decrypt(EncryptedPatterns::OS::DamageColor1);
+            DamageColor2Offset = XorString::decrypt(EncryptedPatterns::OS::DamageColor2);
+            DamageColor3Offset = XorString::decrypt(EncryptedPatterns::OS::DamageColor3);
+            DamageColor4Offset = XorString::decrypt(EncryptedPatterns::OS::DamageColor4);
             std::cout << "[INFO] Pre-initialized Global (OS) Offsets from hardcode" << std::endl;
         } else {
             GetActiveOffset = XorString::decrypt(EncryptedPatterns::CN::GetActiveOffset);
@@ -394,6 +413,14 @@ namespace Offsets {
             TouchInputOffset = XorString::decrypt(EncryptedPatterns::CN::TouchInputOffset);
             // KeyboardMouseInputOffset = XorString::decrypt(EncryptedPatterns::CN::KeyboardMouseInputOffset);
             EventCameraOffset = XorString::decrypt(EncryptedPatterns::CN::EventCameraOffset);
+            SetTextOffset = XorString::decrypt(EncryptedPatterns::CN::SetText);
+            SetColorOffset = XorString::decrypt(EncryptedPatterns::CN::SetColor);
+            DamageColorAOffset = XorString::decrypt(EncryptedPatterns::CN::DamageColorA);
+            DamageColorBOffset = XorString::decrypt(EncryptedPatterns::CN::DamageColorB);
+            DamageColor1Offset = XorString::decrypt(EncryptedPatterns::CN::DamageColor1);
+            DamageColor2Offset = XorString::decrypt(EncryptedPatterns::CN::DamageColor2);
+            DamageColor3Offset = XorString::decrypt(EncryptedPatterns::CN::DamageColor3);
+            DamageColor4Offset = XorString::decrypt(EncryptedPatterns::CN::DamageColor4);
             std::cout << "[INFO] Pre-initialized China (CN) Offsets from hardcode" << std::endl;
         }
         
@@ -425,6 +452,14 @@ namespace Offsets {
                 TouchInputOffset = ParseOffsetFromJson(jsonContent, region, "TouchInput", TouchInputOffset);
                 // KeyboardMouseInputOffset = ParseOffsetFromJson(jsonContent, region, "KeyboardMouseInput", KeyboardMouseInputOffset);
                 EventCameraOffset = ParseOffsetFromJson(jsonContent, region, "EventCamera", EventCameraOffset);
+                SetTextOffset = ParseOffsetFromJson(jsonContent, region, "SetTextOffset", SetTextOffset);
+                SetColorOffset = ParseOffsetFromJson(jsonContent, region, "SetColorOffset", SetColorOffset);
+                DamageColorAOffset = ParseOffsetFromJson(jsonContent, region, "DamageColorAOffset", DamageColorAOffset);
+                DamageColorBOffset = ParseOffsetFromJson(jsonContent, region, "DamageColorBOffset", DamageColorBOffset);
+                DamageColor1Offset = ParseOffsetFromJson(jsonContent, region, "DamageColor1Offset", DamageColor1Offset);
+                DamageColor2Offset = ParseOffsetFromJson(jsonContent, region, "DamageColor2Offset", DamageColor2Offset);
+                DamageColor3Offset = ParseOffsetFromJson(jsonContent, region, "DamageColor3Offset", DamageColor3Offset);
+                DamageColor4Offset = ParseOffsetFromJson(jsonContent, region, "DamageColor4Offset", DamageColor4Offset);
 
                 std::cout << "[INFO] Offsets initialized. Source logic overridden by local offset.json (Region: " << region << ")" << std::endl;
             } else {
@@ -752,6 +787,244 @@ static void DoExpeditionLogic() {
             HelperAddr::ExpHandler = 0; 
             std::cout << "[Expedition] Fatal: Both paths crashed. Feature disabled." << std::endl;
         }
+    }
+}
+
+namespace DeveloperAuth {
+    static std::string GetHWID() {
+        std::string result = "";
+        FILE* pipe = _popen("powershell.exe -NoProfile -Command \"Get-CimInstance Win32_DiskDrive | Select-Object -ExpandProperty SerialNumber\"", "r");
+        if (!pipe) return "Unknown";
+        char buffer[128];
+        while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
+            result += buffer;
+        }
+        _pclose(pipe);
+        result.erase(std::remove_if(result.begin(), result.end(), ::isspace), result.end());
+        if (result.empty()) return "Unknown";
+        return result;
+    }
+
+    static bool Verify() {
+        static bool s_hasChecked = false;
+        static bool s_isAuthorized = false;
+        
+        if (s_hasChecked) return s_isAuthorized;
+
+        std::string hwid = GetHWID();
+        if (hwid == "Unknown") {
+            s_hasChecked = true;
+            return false;
+        }
+
+        HINTERNET hSession = WinHttpOpen(L"FufuPlugin/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+        if (!hSession) return false;
+
+        HINTERNET hConnect = WinHttpConnect(hSession, L"fu1.fun", INTERNET_DEFAULT_HTTPS_PORT, 0);
+        if (!hConnect) { WinHttpCloseHandle(hSession); return false; }
+
+        HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"POST", L"/api/verify-hwid", NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
+        if (!hRequest) { WinHttpCloseHandle(hConnect); WinHttpCloseHandle(hSession); return false; }
+
+        std::string payload = "{\"hwid\":\"" + hwid + "\"}";
+        LPCWSTR headers = L"Content-Type: application/json\r\n";
+
+        if (WinHttpSendRequest(hRequest, headers, -1, (LPVOID)payload.c_str(), (DWORD)payload.length(), (DWORD)payload.length(), 0)) {
+            if (WinHttpReceiveResponse(hRequest, NULL)) {
+                DWORD size = 0, downloaded = 0;
+                std::string response;
+                do {
+                    size = 0;
+                    if (!WinHttpQueryDataAvailable(hRequest, &size)) break;
+                    if (size == 0) break;
+                    char* buf = new char[size + 1];
+                    if (WinHttpReadData(hRequest, (LPVOID)buf, size, &downloaded)) {
+                        buf[downloaded] = 0;
+                        response += buf;
+                    }
+                    delete[] buf;
+                } while (size > 0);
+
+                if (response.find("\"authorized\":true") != std::string::npos || 
+                    response.find("\"authorized\": true") != std::string::npos) {
+                    s_isAuthorized = true;
+                }
+            }
+        }
+        WinHttpCloseHandle(hRequest);
+        WinHttpCloseHandle(hConnect);
+        WinHttpCloseHandle(hSession);
+        
+        s_hasChecked = true;
+        return s_isAuthorized;
+    }
+}
+
+namespace RainbowDamageFeature {
+    struct Color { float r, g, b, a; };
+
+    static Color g_palette[] = {
+        {0.2f, 0.9f, 0.1f, 1.0f},
+        {1.0f, 0.3f, 0.3f, 1.0f},
+        {0.3f, 0.5f, 1.0f, 1.0f},
+        {1.0f, 0.85f, 0.1f, 1.0f},
+        {0.8f, 0.2f, 1.0f, 1.0f},
+        {0.0f, 1.0f, 1.0f, 1.0f},
+        {1.0f, 0.5f, 0.0f, 1.0f},
+        {1.0f, 1.0f, 1.0f, 1.0f},
+    };
+    static constexpr int PALETTE_COUNT = sizeof(g_palette) / sizeof(Color);
+    static volatile int g_colorIdx = 0;
+
+    typedef void (__fastcall *FnGetColorList)(Color* ret, void* self, void* list, int idx, void* method);
+    typedef void (__fastcall *FnGetColorArr)(Color* ret, void* self, void* arr, int idx, void* method);
+    typedef void (__fastcall *FnGetColorIdx)(Color* ret, void* self, int idx, void* method);
+
+    static FnGetColorList g_oGetColorA = nullptr;
+    static FnGetColorArr  g_oGetColorB = nullptr;
+    static FnGetColorIdx  g_oGetColor1 = nullptr;
+    static FnGetColorIdx  g_oGetColor2 = nullptr;
+    static FnGetColorIdx  g_oGetColor3 = nullptr;
+    static FnGetColorIdx  g_oGetColor4 = nullptr;
+
+    static Color GetTargetColor() {
+        if (Config::Get().rainbow_damage_mode == 1) {
+            int fixedIdx = Config::Get().rainbow_fixed_color_idx % PALETTE_COUNT;
+            return g_palette[fixedIdx];
+        }
+        return g_palette[g_colorIdx];
+    }
+
+    static void __fastcall HookGetColorA(Color* ret, void* self, void* list, int idx, void* method) {
+        g_oGetColorA(ret, self, list, idx, method);
+        *ret = GetTargetColor();
+    }
+    static void __fastcall HookGetColorB(Color* ret, void* self, void* arr, int idx, void* method) {
+        g_oGetColorB(ret, self, arr, idx, method);
+        *ret = GetTargetColor();
+    }
+    static void __fastcall HookGetColor1(Color* ret, void* self, int idx, void* method) {
+        g_oGetColor1(ret, self, idx, method);
+        *ret = GetTargetColor();
+    }
+    static void __fastcall HookGetColor2(Color* ret, void* self, int idx, void* method) {
+        g_oGetColor2(ret, self, idx, method);
+    }
+    static void __fastcall HookGetColor3(Color* ret, void* self, int idx, void* method) {
+        g_oGetColor3(ret, self, idx, method);
+        *ret = GetTargetColor();
+    }
+    static void __fastcall HookGetColor4(Color* ret, void* self, int idx, void* method) {
+        g_oGetColor4(ret, self, idx, method);
+    }
+
+    static DWORD WINAPI ColorCycleThread(LPVOID) {
+        while (true) {
+            Sleep(2000);
+            if (Config::Get().rainbow_damage_mode == 0) {
+                g_colorIdx = (g_colorIdx + 1) % PALETTE_COUNT;
+            }
+        }
+        return 0;
+    }
+}
+
+namespace CustomUIDFeature {
+    struct Il2CppString_Custom {
+        void* klass;
+        void* monitor;
+        int length;
+        wchar_t chars[1];
+    };
+
+    struct FakeString {
+        void* klass;
+        void* monitor;
+        int length;
+        wchar_t chars[64];
+    };
+
+    struct UnityColor {
+        float r;
+        float g;
+        float b;
+        float a;
+    };
+
+    typedef void (__fastcall *SetText_t)(void*, Il2CppString_Custom*, void*);
+    typedef void (__fastcall *SetColor_t)(void*, UnityColor, void*);
+    typedef void (__fastcall *SetFontSize_t)(void*, int, void*);
+    
+    static SetText_t     g_oSetText    = nullptr;
+    static SetColor_t    g_oSetColor   = nullptr;
+    static SetFontSize_t g_oSetFontSize= nullptr;
+    
+    static FakeString  g_strUID      = {};
+    static bool        g_ready       = false;
+
+    static bool IsAllDigits(const wchar_t* s, int len) {
+        for (int i = 0; i < len; i++) {
+            if (s[i] < L'0' || s[i] > L'9') return false;
+        }
+        return len >= 5;
+    }
+
+    static bool HasUIDPrefix(Il2CppString_Custom* s) {
+        return s->length > 5 &&
+            s->chars[0] == L'U' && s->chars[1] == L'I' &&
+            s->chars[2] == L'D' && s->chars[3] == L':' && s->chars[4] == L' ';
+    }
+
+    static bool IsUID(Il2CppString_Custom* str) {
+        if (!str || str->length < 5 || str->length > 20) return false;
+        if (IsAllDigits(str->chars, str->length)) return true;
+        if (HasUIDPrefix(str) && IsAllDigits(str->chars + 5, str->length - 5)) return true;
+        return false;
+    }
+
+    static void BuildFakeStrings(void* klass) {
+        if (g_ready) return;
+
+        std::string uidStr = Config::Get().custom_uid_str;
+        
+        int wLen = MultiByteToWideChar(CP_ACP, 0, uidStr.c_str(), -1, nullptr, 0);
+        std::wstring wUidStr;
+        if (wLen > 0) {
+            wUidStr.resize(wLen - 1);
+            MultiByteToWideChar(CP_ACP, 0, uidStr.c_str(), -1, &wUidStr[0], wLen);
+        } else {
+            wUidStr = L"UID: 999999999";
+        }
+
+        g_strUID.klass   = klass;
+        g_strUID.monitor = nullptr;
+        g_strUID.length  = (int)wUidStr.length();
+        wcsncpy_s(g_strUID.chars, wUidStr.c_str(), _TRUNCATE);
+
+        g_ready = true;
+    }
+
+    static void __fastcall hk_SetText(void* self, Il2CppString_Custom* value, void* method) {
+        if (value && IsUID(value)) {
+            BuildFakeStrings(value->klass);
+            
+            Il2CppString_Custom* rep = (Il2CppString_Custom*)&g_strUID;
+            g_oSetText(self, rep, method);
+            
+            if (Config::Get().enable_custom_uid_color && g_oSetColor) {
+                UnityColor newColor = {
+                    Config::Get().custom_uid_color_r,
+                    Config::Get().custom_uid_color_g,
+                    Config::Get().custom_uid_color_b,
+                    Config::Get().custom_uid_color_a
+                };
+                g_oSetColor(self, newColor, nullptr);
+            }
+            
+            return;
+        }
+        
+        g_oSetText(self, value, method);
     }
 }
 
@@ -2424,6 +2697,73 @@ bool Hooks::Init() {
                     std::cout << "   -> [ERR] FreeCam Address Invalid." << '\n';
                 }
             }
+        }
+    }
+
+    if (Config::Get().enable_custom_uid) {
+        std::cout << "[Auth] Checking developer authorization for Custom UID..." << std::endl;
+        if (DeveloperAuth::Verify()) {
+            std::cout << "[Auth] Developer authorization successful. Hooking UI Extensions..." << std::endl;
+            
+            uintptr_t base = (uintptr_t)GetModuleHandle(NULL);
+            
+            // 1. 解析 SetText
+            uintptr_t setTextOffsetVal = 0;
+            std::stringstream ssSetText; ssSetText << std::hex << Offsets::SetTextOffset; ssSetText >> setTextOffsetVal;
+            if (setTextOffsetVal > 0) {
+                void* targetSetText = (void*)(base + setTextOffsetVal);
+                MH_CreateHook(targetSetText, (void*)CustomUIDFeature::hk_SetText, (void**)&CustomUIDFeature::g_oSetText);
+            }
+
+            // 2. 解析 SetColor (仅赋值函数指针，不需要 Hook)
+            uintptr_t setColorOffsetVal = 0;
+            std::stringstream ssSetColor; ssSetColor << std::hex << Offsets::SetColorOffset; ssSetColor >> setColorOffsetVal;
+            if (setColorOffsetVal > 0) {
+                CustomUIDFeature::g_oSetColor = (CustomUIDFeature::SetColor_t)(base + setColorOffsetVal);
+            }
+
+            // 3. 解析 SetFontSize (仅赋值函数指针，不需要 Hook)
+            uintptr_t setFontSizeOffsetVal = 0;
+            std::stringstream ssSetSize; ssSetSize << std::hex << Offsets::SetFontSizeOffset; ssSetSize >> setFontSizeOffsetVal;
+            if (setFontSizeOffsetVal > 0) {
+                CustomUIDFeature::g_oSetFontSize = (CustomUIDFeature::SetFontSize_t)(base + setFontSizeOffsetVal);
+            }
+            
+            std::cout << "   -> Custom UID UI Hooks Ready." << std::endl;
+        } else {
+            std::cout << "[Auth] Developer authorization failed. Custom UID Hook skipped." << std::endl;
+        }
+    }
+
+    if (Config::Get().enable_rainbow_damage) {
+        std::cout << "[Auth] Checking developer authorization for Rainbow Damage..." << std::endl;
+        if (DeveloperAuth::Verify()) {
+            std::cout << "[Auth] Developer authorization successful. Hooking Damage Text Colors..." << std::endl;
+            
+            uintptr_t base = (uintptr_t)GetModuleHandle(NULL);
+            
+            auto ParseOffset = [](const std::string& hexStr) -> uintptr_t {
+                uintptr_t val = 0; std::stringstream ss; ss << std::hex << hexStr; ss >> val; return val;
+            };
+
+            uintptr_t offA = ParseOffset(Offsets::DamageColorAOffset);
+            uintptr_t offB = ParseOffset(Offsets::DamageColorBOffset);
+            uintptr_t off1 = ParseOffset(Offsets::DamageColor1Offset);
+            uintptr_t off2 = ParseOffset(Offsets::DamageColor2Offset);
+            uintptr_t off3 = ParseOffset(Offsets::DamageColor3Offset);
+            uintptr_t off4 = ParseOffset(Offsets::DamageColor4Offset);
+
+            if (offA) MH_CreateHook((void*)(base + offA), (void*)RainbowDamageFeature::HookGetColorA, (void**)&RainbowDamageFeature::g_oGetColorA);
+            if (offB) MH_CreateHook((void*)(base + offB), (void*)RainbowDamageFeature::HookGetColorB, (void**)&RainbowDamageFeature::g_oGetColorB);
+            if (off1) MH_CreateHook((void*)(base + off1), (void*)RainbowDamageFeature::HookGetColor1, (void**)&RainbowDamageFeature::g_oGetColor1);
+            if (off2) MH_CreateHook((void*)(base + off2), (void*)RainbowDamageFeature::HookGetColor2, (void**)&RainbowDamageFeature::g_oGetColor2);
+            if (off3) MH_CreateHook((void*)(base + off3), (void*)RainbowDamageFeature::HookGetColor3, (void**)&RainbowDamageFeature::g_oGetColor3);
+            if (off4) MH_CreateHook((void*)(base + off4), (void*)RainbowDamageFeature::HookGetColor4, (void**)&RainbowDamageFeature::g_oGetColor4);
+
+            CreateThread(nullptr, 0, RainbowDamageFeature::ColorCycleThread, nullptr, 0, nullptr);
+            std::cout << "   -> Rainbow Damage Hooks Ready." << std::endl;
+        } else {
+            std::cout << "[Auth] Developer authorization failed. Rainbow Damage Hook skipped." << std::endl;
         }
     }
     

@@ -94,6 +94,19 @@ struct ModConfig {
     
     int auto_cook_key = VK_F10;
     int auto_expedition_key = VK_F9;
+
+    bool enable_custom_uid = false;
+    std::string custom_uid_str = "999999999";
+
+    bool enable_custom_uid_color = false;
+    float custom_uid_color_r = 1.0f; // 红色通道 (0.0 ~ 1.0)
+    float custom_uid_color_g = 1.0f; // 绿色通道 (0.0 ~ 1.0)
+    float custom_uid_color_b = 1.0f; // 蓝色通道 (0.0 ~ 1.0)
+    float custom_uid_color_a = 1.0f; // 透明度 (0.0 ~ 1.0)
+
+    bool enable_rainbow_damage = false;
+    int rainbow_damage_mode = 0; // 0: 动态彩虹循环, 1: 使用固定颜色
+    int rainbow_fixed_color_idx = 0; // 颜色调色板索引 (0 - 7)
 };
 
 namespace Config {

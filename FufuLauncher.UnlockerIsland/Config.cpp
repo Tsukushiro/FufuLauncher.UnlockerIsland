@@ -177,5 +177,21 @@ namespace Config {
         
         g_Config.auto_cook_key = ReadInt("AutoCookKey", VK_F10, file);
         g_Config.auto_expedition_key = ReadInt("AutoExpeditionKey", VK_F9, file);
+
+        g_Config.enable_custom_uid = ReadInt("EnableCustomUID", 0, file);
+        
+        char uidBuf[32] = {};
+        ReadString("CustomUIDStr", "999999999", uidBuf, sizeof(uidBuf), file);
+        g_Config.custom_uid_str = uidBuf;
+        
+        g_Config.enable_custom_uid_color = ReadInt("EnableCustomUIDColor", 0, file);
+        g_Config.custom_uid_color_r = ReadFloat("CustomUIDColorR", 1.0f, file);
+        g_Config.custom_uid_color_g = ReadFloat("CustomUIDColorG", 1.0f, file);
+        g_Config.custom_uid_color_b = ReadFloat("CustomUIDColorB", 1.0f, file);
+        g_Config.custom_uid_color_a = ReadFloat("CustomUIDColorA", 1.0f, file);
+
+        g_Config.enable_rainbow_damage = ReadInt("EnableRainbowDamage", 0, file);
+        g_Config.rainbow_damage_mode = ReadInt("RainbowDamageMode", 0, file);
+        g_Config.rainbow_fixed_color_idx = ReadInt("RainbowFixedColorIdx", 0, file);
     }
 }

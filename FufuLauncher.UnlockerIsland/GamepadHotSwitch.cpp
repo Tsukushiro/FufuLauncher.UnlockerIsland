@@ -6,6 +6,7 @@
 #include <iostream>
 #include <commctrl.h>
 
+#pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "comctl32.lib")
 
 #define WM_GAMEPAD_ACTIVATED (WM_APP + 100)
@@ -167,6 +168,7 @@ void InitializeWndProcHooks()
 
 GamepadHotSwitch::GamepadHotSwitch()
 {
+    memset(m_lastJoyState, 0, sizeof(m_lastJoyState));
 }
 
 GamepadHotSwitch::~GamepadHotSwitch()
@@ -397,6 +399,52 @@ bool GamepadHotSwitch::IsXInputControllerActive() const
     return false;
 }
 
+bool GamepadHotSwitch::IsDirectInputControllerActive()
+{
+    bool active = false;
+    // 轮询前4个可能连接的设备
+    for (UINT id = 0; id < 4; id++)
+    {
+        JOYINFOEX ji;
+        ji.dwSize = sizeof(JOYINFOEX);
+        ji.dwFlags = JOY_RETURNALL;
+
+        if (joyGetPosEx(id, &ji) == JOYERR_NOERROR)
+        {
+            if (m_lastJoyState[id].dwSize == 0)
+            {
+                m_lastJoyState[id] = ji;
+            }
+            else
+            {
+                if (ji.dwButtons != m_lastJoyState[id].dwButtons)
+                {
+                    active = true;
+                }
+                else if (ji.dwPOV != m_lastJoyState[id].dwPOV)
+                {
+                    active = true;
+                }
+                else if (abs((int)ji.dwXpos - (int)m_lastJoyState[id].dwXpos) > 4000 ||
+                         abs((int)ji.dwYpos - (int)m_lastJoyState[id].dwYpos) > 4000 ||
+                         abs((int)ji.dwZpos - (int)m_lastJoyState[id].dwZpos) > 4000 ||
+                         abs((int)ji.dwRpos - (int)m_lastJoyState[id].dwRpos) > 4000 ||
+                         abs((int)ji.dwUpos - (int)m_lastJoyState[id].dwUpos) > 4000 ||
+                         abs((int)ji.dwVpos - (int)m_lastJoyState[id].dwVpos) > 4000)
+                {
+                    active = true;
+                }
+                m_lastJoyState[id] = ji;
+            }
+        }
+        else
+        {
+            m_lastJoyState[id].dwSize = 0;
+        }
+    }
+    return active;
+}
+
 bool GamepadHotSwitch::IsKeyboardActive()
 {
     if (m_keyboardActivity)
@@ -455,12 +503,11 @@ void GamepadHotSwitch::MainThread()
             }
             continue;
         }
-
-        if (IsXInputControllerActive())
+        
+        if (IsXInputControllerActive() || IsDirectInputControllerActive())
             m_lastGamepadActivityTime = currentTime;
         if (IsKeyboardActive() || IsMouseActive())
             m_lastKeyboardMouseActivityTime = currentTime;
-
         if (m_lastGamepadActivityTime > m_lastKeyboardMouseActivityTime + SWITCH_DELAY_MS)
             SendSwitchMessage(true);
         else if (m_lastKeyboardMouseActivityTime > m_lastGamepadActivityTime + SWITCH_DELAY_MS)
