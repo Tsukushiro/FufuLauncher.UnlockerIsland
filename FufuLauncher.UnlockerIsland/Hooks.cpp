@@ -2283,12 +2283,16 @@ void WINAPI hk_SetupQuestBanner(void* __this) {
     auto setActive = (tSetActive)o_SetActive.load();
 
     if (IsValid(findStr) && IsValid(findGO) && IsValid(setActive)) {
-        bool hide = false;
+        static bool s_is_hidden = false;
+        
         if (cfg.hide_quest_banner) {
             static ULONGLONG last_check_time = 0;
             ULONGLONG current_time = GetTickCount64();
+            
             if (current_time - last_check_time >= 500) {
                 last_check_time = current_time;
+                bool found = false;
+                
                 SafeInvoke([&]
                 {
                     std::string sBanner = XorString::decrypt(EncryptedStrings::QuestBannerPath);
@@ -2297,13 +2301,18 @@ void WINAPI hk_SetupQuestBanner(void* __this) {
                         auto go = findGO(s); 
                         if (go) { 
                             setActive(go, false); 
-                            hide = true; 
+                            found = true; 
                         } 
                     }
                 });
+                
+                s_is_hidden = found;
             }
+            
+            if (s_is_hidden) return;
+        } else {
+            s_is_hidden = false;
         }
-        if (hide) return;
     }
 
     auto orig = (tSetupQuestBanner)o_SetupQuestBanner.load();
