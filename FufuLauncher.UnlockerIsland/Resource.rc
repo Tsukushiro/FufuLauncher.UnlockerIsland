@@ -1,0 +1,39 @@
+﻿#pragma code_page(65001)
+#define APSTUDIO_READONLY_SYMBOLS
+#include "winres.h"
+#undef APSTUDIO_READONLY_SYMBOLS
+#define STRINGIZE2(s) #s
+#define STRINGIZE(s) STRINGIZE2(s)
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,2,0,0
+ PRODUCTVERSION 1,2,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "CompanyName", "FufuLauncher Development Team"
+            VALUE "FileDescription", "FufuLauncher.UnlockerIsland"
+            VALUE "FileVersion", "1.2.0.0+" STRINGIZE(BUILD_NUMBER)
+            VALUE "InternalName", "FufuLauncher.UnlockerIsland.dll"
+            VALUE "LegalCopyright", "Copyright © FufuLauncher Development Team"
+            VALUE "OriginalFilename", "FufuLauncher.UnlockerIsland.dll"
+            VALUE "ProductName", "FufuLauncher.UnlockerIsland"
+            VALUE "ProductVersion", "1.2.0.0+" STRINGIZE(BUILD_NUMBER)
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END
