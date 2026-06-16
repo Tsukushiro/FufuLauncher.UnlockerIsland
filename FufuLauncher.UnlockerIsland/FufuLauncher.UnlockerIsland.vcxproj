@@ -144,7 +144,6 @@
     <ItemGroup>
         <ClInclude Include="Config\Config.h" />
         <ClInclude Include="Core\Hooks.h" />
-        <ClInclude Include="GamepadHotSwitch\GamepadHotSwitch.h" />
         <ClInclude Include="Core\SharedState.h" />
         <ClInclude Include="Patterns\Patterns.h" />
         <ClInclude Include="FreeCam\FreeCam.h" />
@@ -166,7 +165,6 @@
         <ClCompile Include="Config\Config.cpp" />
         <ClCompile Include="Core\dllmain.cpp" />
         <ClCompile Include="Core\Hooks.cpp" />
-        <ClCompile Include="GamepadHotSwitch\GamepadHotSwitch.cpp" />
         <ClCompile Include="Scanner\Scanner.cpp" />
         <ClCompile Include="Core\SharedState.cpp" />
         <ClCompile Include="Patterns\Patterns.cpp" />

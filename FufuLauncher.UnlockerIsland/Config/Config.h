@@ -90,8 +90,6 @@ struct ModConfig {
     bool enable_auto_cook = false;
     bool enable_auto_expedition = false;
     
-    bool enable_gamepad_hot_switch = false;
-    
     int auto_cook_key = VK_F10;
     int auto_expedition_key = VK_F9;
 
