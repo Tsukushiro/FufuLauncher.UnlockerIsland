@@ -1,4 +1,4 @@
-#include "Config.h"
+﻿#include "Config.h"
 #include <string>
 #include <cstdio>
 #include <cstdlib>
@@ -187,6 +187,25 @@ namespace Config {
         g_Config.custom_uid_color_g = ReadFloat("CustomUIDColorG", 1.0f, file);
         g_Config.custom_uid_color_b = ReadFloat("CustomUIDColorB", 1.0f, file);
         g_Config.custom_uid_color_a = ReadFloat("CustomUIDColorA", 1.0f, file);
+
+        g_Config.enable_rainbow_uid = ReadInt("EnableRainbowUID", 0, file);
+        g_Config.rainbow_uid_speed = ReadFloat("RainbowUIDSpeed", 5.0f, file);
+
+        char _gc[16];
+        ReadString("GradientColor0", "EF9393", _gc, 16, file); g_Config.gradient_color_0 = (unsigned int)strtoul(_gc, nullptr, 16);
+        ReadString("GradientColor1", "E17DC2", _gc, 16, file); g_Config.gradient_color_1 = (unsigned int)strtoul(_gc, nullptr, 16);
+        ReadString("GradientColor2", "998EE0", _gc, 16, file); g_Config.gradient_color_2 = (unsigned int)strtoul(_gc, nullptr, 16);
+        ReadString("GradientColor3", "43ADD0", _gc, 16, file); g_Config.gradient_color_3 = (unsigned int)strtoul(_gc, nullptr, 16);
+        ReadString("GradientColor4", "8BDEDA", _gc, 16, file); g_Config.gradient_color_4 = (unsigned int)strtoul(_gc, nullptr, 16);
+
+        g_Config.enable_rainbow_uid = ReadInt("EnableRainbowUID", 0, file);
+        g_Config.rainbow_uid_speed = ReadFloat("RainbowUIDSpeed", 5.0f, file);
+
+        ReadString("GradientColor0", "EF9393", _gc, 16, file); g_Config.gradient_color_0 = (unsigned int)strtoul(_gc, nullptr, 16);
+        ReadString("GradientColor1", "E17DC2", _gc, 16, file); g_Config.gradient_color_1 = (unsigned int)strtoul(_gc, nullptr, 16);
+        ReadString("GradientColor2", "998EE0", _gc, 16, file); g_Config.gradient_color_2 = (unsigned int)strtoul(_gc, nullptr, 16);
+        ReadString("GradientColor3", "43ADD0", _gc, 16, file); g_Config.gradient_color_3 = (unsigned int)strtoul(_gc, nullptr, 16);
+        ReadString("GradientColor4", "8BDEDA", _gc, 16, file); g_Config.gradient_color_4 = (unsigned int)strtoul(_gc, nullptr, 16);
 
         g_Config.enable_rainbow_damage = ReadInt("EnableRainbowDamage", 0, file);
         g_Config.rainbow_damage_mode = ReadInt("RainbowDamageMode", 0, file);

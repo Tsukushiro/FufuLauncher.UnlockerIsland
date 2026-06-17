@@ -15,7 +15,7 @@ namespace CustomUIDFeature {
         void* klass;
         void* monitor;
         int length;
-        wchar_t chars[64];
+        wchar_t chars[1024]; // large enough for rich-text UID
     };
 
     struct UnityColor {
@@ -32,6 +32,9 @@ namespace CustomUIDFeature {
     extern SetText_t     g_oSetText;
     extern SetColor_t    g_oSetColor;
     extern SetFontSize_t g_oSetFontSize;
+    extern void*         g_UIDComponent;
+    extern void*         g_UIDStringKlass; // Il2CppString klass for rich-text
 
     void __fastcall hk_SetText(void* self, Il2CppString_Custom* value, void* method);
+    void UpdateUIDColor();
 }

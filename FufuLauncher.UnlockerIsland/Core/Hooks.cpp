@@ -266,6 +266,8 @@ static void UpdateFreeCamPhysics_Safe() {
 
 int32_t WINAPI hk_ChangeFov(void* __this, float value) {
     if (!g_GameUpdateInit.load()) g_GameUpdateInit.store(true);
+
+    CustomUIDFeature::UpdateUIDColor();
     auto& cfg = Config::Get();
 
     static int frameCounter = 0;
