@@ -180,11 +180,8 @@ void DoCraftLogic(bool isShortcut) {
         if (isShortcut) {
             if (CheckResistInBeyd()) return;
 
-            auto checkEnter = (tCheckCanEnter)p_CheckCanEnter.load();
             if (IsValid(checkEnter)) {
-                bool canEnter = false;
                 SafeInvoke([&] { canEnter = checkEnter(); });
-                if (!canEnter) return;
             }
         }
 
